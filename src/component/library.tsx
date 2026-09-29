@@ -20,6 +20,7 @@ export default function Library() {
 
   const [postmodal, setpostmodal] = useState(false);
   const [editmodal, seteditmodal] = useState(false);
+  const [viewBook, setViewBook] = useState<PostValues | null>(null);
   const [createLoading, setCreateLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
   const [deletingId, setDeletingId] = useState<string>();
@@ -131,47 +132,56 @@ export default function Library() {
         </div>
 
         {datas.length > 0 ? (
-          <div className="book-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="book-grid grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {datas.map((item, index) => (
               <article
                 className="book-card group overflow-hidden"
                 key={item.id || index}
               >
-                {item.image ? (
-                  <img
-                    className="book-cover h-60 w-full object-cover transition duration-500 group-hover:scale-105"
-                    src={item.image}
-                    alt={item.title}
-                  />
-                ) : (
-                  <div className="book-cover flex h-60 items-center justify-center text-sm font-medium">
-                    No cover image
+                <div className="book-cover-wrap">
+                  {item.image ? (
+                    <img
+                      className="book-cover h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                      src={item.image}
+                      alt={item.title}
+                    />
+                  ) : (
+                    <div className="book-cover flex h-full w-full items-center justify-center text-sm font-medium">
+                      No cover image
+                    </div>
+                  )}
+                  <div className="book-cover-overlay">
+                    <span className="book-genre book-genre-overlay">
+                      {item.genre}
+                    </span>
+                    <h2 className="book-title book-cover-title">{item.title}</h2>
                   </div>
-                )}
-                <div className="p-5">
-                  <div className="mb-3 flex items-start justify-between gap-3">
-                    <h2 className="book-title">{item.title}</h2>
+                </div>
+                <div className="p-4">
+                  <div className="mb-2 flex justify-end">
                     <span className="book-year shrink-0">
                       {item.year}
                     </span>
                   </div>
-                  <p className="book-author mb-3">
+                  <p className="book-author mb-2">
                     By {item.author}
                   </p>
-                  <span className="book-genre inline-block">
-                    {item.genre}
-                  </span>
-                  <p className="book-description mt-4 line-clamp-3">
+                  <p className="book-description mt-3 line-clamp-2">
                     {item.desc}
                   </p>
-                  <div className="book-actions mt-5 flex gap-2">
+                  <div className="book-actions mt-4 flex gap-2">
+                    <Button size="small" className="view-button" onClick={() => setViewBook(item)}>
+                      View
+                    </Button>
                     <Popconfirm
+                      overlayClassName="book-delete-confirm"
                       title="Do you really want to delete this book?"
                       onConfirm={() => delete_function(item.id)}
                       okText="Delete"
                       cancelText="Cancel"
                     >
                       <Button
+                        size="small"
                         danger
                         type="default"
                         loading={deletingId === item.id}
@@ -179,7 +189,7 @@ export default function Library() {
                         Delete
                       </Button>
                     </Popconfirm>
-                    <Button type="primary" onClick={() => edit_open(item)}>
+                    <Button size="small" type="primary" onClick={() => edit_open(item)}>
                       Edit
                     </Button>
                   </div>
@@ -194,6 +204,52 @@ export default function Library() {
           </div>
         )}
       </div>
+      <Modal
+        className="book-details-modal"
+        open={viewBook !== null}
+        title={<span className="sr-only">{viewBook?.title}</span>}
+        onCancel={() => setViewBook(null)}
+        footer={
+          <Button
+            className="book-details-close-button"
+            type="primary"
+            onClick={() => setViewBook(null)}
+          >
+            Close
+          </Button>
+        }
+      >
+        {viewBook && (
+          <div className="book-details">
+            <div className="book-details-cover-wrap">
+              {viewBook.image ? (
+                <img
+                  className="book-details-cover"
+                  src={viewBook.image}
+                  alt={viewBook.title}
+                />
+              ) : (
+                <div className="book-cover book-details-cover-placeholder">
+                  No cover image
+                </div>
+              )}
+              <div className="book-cover-overlay">
+                <span className="book-genre book-genre-overlay">
+                  {viewBook.genre}
+                </span>
+                <h2 className="book-title book-cover-title book-details-image-title">
+                  {viewBook.title}
+                </h2>
+              </div>
+            </div>
+            <p><strong>Author:</strong> {viewBook.author}</p>
+            <p><strong>Year:</strong> {viewBook.year}</p>
+            {viewBook.id && <p><strong>ID:</strong> {viewBook.id}</p>}
+            <p><strong>Description:</strong></p>
+            <p className="book-details-description">{viewBook.desc}</p>
+          </div>
+        )}
+      </Modal>
       <Modal
       open={postmodal}
         onCancel={() => setpostmodal(false)}
