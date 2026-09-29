@@ -131,7 +131,7 @@ export default function Library() {
         </div>
 
         {datas.length > 0 ? (
-          <div className="book-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="book-grid grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {datas.map((item, index) => (
               <article
                 className="book-card group overflow-hidden"
